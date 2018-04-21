@@ -21,8 +21,10 @@
     <actions>
         <group id="ElasticsearchMenu" popup="true" text="_Elasticsearch">
             <add-to-group group-id="MainMenu" relative-to-action="HelpMenu" anchor="after"/>
-            <action id="Elasticsearch.ConnectorAction" class="com.tbaraukova.ui.elasticsearch.ElasticsearchConnectorAction"
+            <action id="Elasticsearch.ElasticsearchConnectorAction" class="com.tbaraukova.ui.elasticsearch.ElasticsearchConnectorAction"
                     text="Connect _to Elasticsearch" description="A menu item to connect to Elasticsearch"/>
+            <action id="Elasticsearch.ElasticSearchQueryEvaluationAction" class="com.tbaraukova.ui.elasticsearch.ElasticSearchQueryEvaluationAction"
+                    text="Evaluate _selected text on path" description="A menu item to evaluate selected query on a particular Elasticsearch path"/>
         </group>
     </actions>
 </idea-plugin>

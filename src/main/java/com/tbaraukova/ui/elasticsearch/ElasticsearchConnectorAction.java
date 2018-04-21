@@ -16,6 +16,7 @@ import org.apache.http.client.fluent.Request;
 public class ElasticsearchConnectorAction extends AnAction {
 
     private static final ElasticsearchConnector ELASTICSEARCH_CONNECTOR = ElasticsearchConnector.INSTANCE;
+    public static final String ELASTICSEARCH_QUERY_JSON = "elasticsearch-query.json";
 
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
@@ -28,7 +29,7 @@ public class ElasticsearchConnectorAction extends AnAction {
             Content content = Request.Get(ELASTICSEARCH_CONNECTOR.getConnectionUrl()).execute().returnContent();
             Messages.showMessageDialog(project, content.asString(), "Information", Messages.getInformationIcon());
             VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
-                    "elasticsearch-query.json", ScratchFileService.Option.create_if_missing);
+                    ELASTICSEARCH_QUERY_JSON, ScratchFileService.Option.create_if_missing);
             //Get all the required data from data keys
             FileEditorManager.getInstance(project).openFile(file, true);
         } catch (Exception ex) {
