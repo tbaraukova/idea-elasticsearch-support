@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>com.tbaraukova.ui.elasticsearch.elasticsearch-support-plugin</id>
+    <name>Elasticsearch database UI plugin</name>
+    <version>1.0.1</version>
+    <vendor email="baraukova.t.v@gmail.com">Tatsiana Baraukova</vendor>
+
+    <description><![CDATA[
+      A tool to connect to the ElasticSearch instance and perform a set of basic operations.
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <group id="ElasticsearchMenu" popup="true" text="_Elasticsearch">
+            <add-to-group group-id="MainMenu" relative-to-action="HelpMenu" anchor="after"/>
+            <action id="Elasticsearch.ConnectorAction" class="com.tbaraukova.ui.elasticsearch.ElasticsearchConnectorAction"
+                    text="Connect _to Elasticsearch" description="A menu item to connect to Elasticsearch"/>
+        </group>
+    </actions>
+</idea-plugin>
