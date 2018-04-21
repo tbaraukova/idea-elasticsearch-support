@@ -49,8 +49,15 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         try {
             String path = Messages.showInputDialog(project, "Enter request path", "Request Path", Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
-            HTTPMethod method = HTTPMethod.valueOf(Messages.showInputDialog(project, "Enter request method",
-                    "Request Method", Messages.getQuestionIcon(), "POST", new NonEmptyInputValidator()));
+            if (path == null) {
+                return;
+            }
+            String methodString = Messages.showInputDialog(project, "Enter request method",
+                    "Request Method", Messages.getQuestionIcon(), "POST", new NonEmptyInputValidator());
+            if (methodString == null) {
+                return;
+            }
+            HTTPMethod method = HTTPMethod.valueOf(methodString.toUpperCase());
 
             String uri = ELASTICSEARCH_CONNECTOR.getConnectionUrl() + path;
             Messages.showMessageDialog(project, "Evaluate " + (StringUtils.isNotBlank(text) ? text + " " : "")
