@@ -13,6 +13,10 @@ public enum ElasticsearchConnector {
         return connectionUrl.get().getUrl();
     }
 
+    public boolean isInitialized() {
+        return connectionUrl.get().isInitialized();
+    }
+
     public ElasticsearchConnector host(String url) {
         connectionUrl.getAndUpdate(connection -> {
             connection.setHost(url);
@@ -29,12 +33,19 @@ public enum ElasticsearchConnector {
         return this;
     }
 
-
     public ElasticsearchConnector protocol(String url) {
         connectionUrl.getAndUpdate(connection -> {
             if (StringUtils.isNotEmpty(url)) {
                 connection.setProtocol(url);
             }
+            return connection;
+        });
+        return this;
+    }
+
+    public ElasticsearchConnector initialized(boolean initialized) {
+        connectionUrl.getAndUpdate(connection -> {
+            connection.setInitialized(initialized);
             return connection;
         });
         return this;

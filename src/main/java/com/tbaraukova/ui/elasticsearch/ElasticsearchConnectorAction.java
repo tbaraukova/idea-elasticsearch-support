@@ -22,10 +22,19 @@ public class ElasticsearchConnectorAction extends AnAction {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         try {
             String host = Messages.showInputDialog(project, "What is database host name?", "Input Host Name", Messages.getQuestionIcon(), "localhost", new NonEmptyInputValidator());
+            if (host == null) {
+                return;
+            }
             String port = Messages.showInputDialog(project, "What is database port name?", "Input Port Name", Messages.getQuestionIcon(), "9200", new NonEmptyInputValidator());
+            if (port == null) {
+                return;
+            }
             String protocol = Messages.showInputDialog(project, "What is database protocol name (leave empty for \"http\" by default)?", "Input Protocol", Messages.getQuestionIcon());
+            if (protocol == null) {
+                return;
+            }
 
-            ELASTICSEARCH_CONNECTOR.host(host).port(port).protocol(protocol);
+            ELASTICSEARCH_CONNECTOR.host(host).port(port).protocol(protocol).initialized(true);
             Content content = Request.Get(ELASTICSEARCH_CONNECTOR.getConnectionUrl()).execute().returnContent();
             Messages.showMessageDialog(project, content.asString(), "Information", Messages.getInformationIcon());
             VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
