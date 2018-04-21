@@ -1,5 +1,8 @@
 package com.tbaraukova.ui.elasticsearch;
 
+import com.intellij.codeInsight.actions.ReformatCodeProcessor;
+import com.intellij.ide.scratch.ScratchFileService;
+import com.intellij.ide.scratch.ScratchRootType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
@@ -7,21 +10,28 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.util.net.HTTPMethod;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
+
+import java.util.Objects;
 
 import static com.tbaraukova.ui.elasticsearch.ElasticsearchConnectorAction.ELASTICSEARCH_QUERY_JSON;
 
 public class ElasticSearchQueryEvaluationAction extends AnAction {
 
     private static final ElasticsearchConnector ELASTICSEARCH_CONNECTOR = ElasticsearchConnector.INSTANCE;
+    public static final String ELASTICSEARCH_QUERY_RESPONSE_JSON = "elasticsearch-response.json";
 
     @Override
     public void update(AnActionEvent e) {
@@ -45,8 +55,25 @@ public class ElasticSearchQueryEvaluationAction extends AnAction {
             String text = getQueryToEvaluate(event);
             String uri = ELASTICSEARCH_CONNECTOR.getConnectionUrl() + path;
             Messages.showMessageDialog(project, "Evaluate " + text + " on " + uri, "Information", Messages.getInformationIcon());
-            Content content = getRequest(method, uri).bodyString(text, ContentType.APPLICATION_JSON).execute().returnContent();
-            Messages.showMessageDialog(project, content == null ? "No content were returned." : content.asString(), "Information", Messages.getInformationIcon());
+            Request request = getRequest(method, uri);
+            if (StringUtils.isNotBlank(text)) {
+                request.bodyString(text, ContentType.APPLICATION_JSON);
+            }
+            Content content = request.execute().returnContent();
+            String response = content == null ? "No content were returned." : content.asString();
+            Messages.showMessageDialog(project, response, "Information", Messages.getInformationIcon());
+
+            VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
+                    ELASTICSEARCH_QUERY_RESPONSE_JSON, ScratchFileService.Option.create_if_missing);
+
+            Document responseDocument = FileDocumentManager.getInstance().getDocument(file);
+//            responseDocument.setReadOnly(false);
+            responseDocument.setText(response);
+
+            FileEditorManager.getInstance(project).openFile(file, true);
+            ReformatCodeProcessor reformatCodeProcessor = new ReformatCodeProcessor(Objects.requireNonNull(PsiManager.getInstance(project).findFile(file)), false);
+//            reformatCodeProcessor.setPostRunnable(() -> responseDocument.setReadOnly(true));
+            reformatCodeProcessor.run();
         } catch (Throwable ex) {
             Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
         }

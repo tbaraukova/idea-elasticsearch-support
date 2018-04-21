@@ -30,7 +30,6 @@ public class ElasticsearchConnectorAction extends AnAction {
             Messages.showMessageDialog(project, content.asString(), "Information", Messages.getInformationIcon());
             VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
                     ELASTICSEARCH_QUERY_JSON, ScratchFileService.Option.create_if_missing);
-            //Get all the required data from data keys
             FileEditorManager.getInstance(project).openFile(file, true);
         } catch (Exception ex) {
             Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());

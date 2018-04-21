@@ -2,7 +2,7 @@
     <id>com.tbaraukova.ui.elasticsearch.elasticsearch-support-plugin</id>
     <name>Elasticsearch database UI plugin</name>
     <version>1.0.1</version>
-    <vendor email="baraukova.t.v@gmail.com">Tatsiana Baraukova</vendor>
+    <vendor email="borovkova.t.v@gmail.com">Tatsiana Baraukova</vendor>
 
     <description><![CDATA[
       A tool to connect to the ElasticSearch instance and perform a set of basic operations.
