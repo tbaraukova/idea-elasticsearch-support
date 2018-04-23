@@ -4,10 +4,11 @@ A plugin to connect to the ElasticSearch instance and perform a set of basic ope
 Installation:
 1. Install JDK 1.8 or more.
 2. Download or clone the sources.
-3. Execute the "gradlew clean build" command in a root project folder console.
-4. In the IDE window go to File -> Settings -> Plugins -> Install plugin from disk.
-5. Select a ZIP file from the "<projectRoot>/build/distributions" folder.
-6. Press OK and restart the IDE
+3. Install Gradle and execute "gradle wrapper" command in a root project folder console.
+4. Execute the "gradlew clean build" command in a root project folder console.
+5. In the IDE window go to File -> Settings -> Plugins -> Install plugin from disk.
+6. Select a ZIP file from the "<projectRoot>/build/distributions" folder.
+7. Press OK and restart the IDE.
 
 Usage:
 1. In the IDE go to the Elasticsearch -> Connect to Elasticsearch
