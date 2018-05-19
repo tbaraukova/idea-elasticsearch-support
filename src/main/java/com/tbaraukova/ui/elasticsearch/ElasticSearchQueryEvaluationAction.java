@@ -9,8 +9,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 
-import static com.tbaraukova.ui.elasticsearch.ElasticsearchConnectorAction.ELASTICSEARCH_QUERY_JSON;
-
 public class ElasticSearchQueryEvaluationAction extends ElasticSearchSimpleQueryEvaluationAction {
 
     @Override
@@ -22,8 +20,7 @@ public class ElasticSearchQueryEvaluationAction extends ElasticSearchSimpleQuery
     @Override
     protected boolean isVisible(Project project, Editor editor, VirtualFile virtualFile) {
         return super.isVisible(project, editor, virtualFile) && project != null && editor != null &&
-                editor.getSelectionModel().hasSelection() && virtualFile != null &&
-                ELASTICSEARCH_QUERY_JSON.equals(virtualFile.getName());
+                editor.getSelectionModel().hasSelection();
     }
 
     private String getQueryToEvaluate(AnActionEvent event) {

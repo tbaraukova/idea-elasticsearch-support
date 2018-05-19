@@ -28,7 +28,7 @@ import java.util.Objects;
 public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
 
     private static final ElasticsearchConnector ELASTICSEARCH_CONNECTOR = ElasticsearchConnector.INSTANCE;
-    public static final String ELASTICSEARCH_QUERY_RESPONSE_JSON = "elasticsearch-response.json";
+    private static final String ELASTICSEARCH_QUERY_RESPONSE_JSON = "elasticsearch-response.json";
 
     @Override
     public void update(AnActionEvent e) {
