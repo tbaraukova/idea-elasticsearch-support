@@ -33,7 +33,7 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
     @Override
     public void update(AnActionEvent e) {
         e.getPresentation().setVisible(isVisible(e.getProject(), e.getData(CommonDataKeys.EDITOR),
-                e.getData(PlatformDataKeys.VIRTUAL_FILE)));
+            e.getData(PlatformDataKeys.VIRTUAL_FILE)));
     }
 
     protected boolean isVisible(Project project, Editor editor, VirtualFile virtualFile) {
@@ -48,44 +48,46 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
     protected void performActionInternal(AnActionEvent event, String text) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         try {
-            String path = Messages.showInputDialog(project, "Enter request path", "Request Path", Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
-            if (path == null) {
+            String path = Messages.showInputDialog(project, "Enter request path", "Request Path",
+                Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
+            if(path == null) {
                 return;
             }
             String methodString = Messages.showInputDialog(project, "Enter request method",
-                    "Request Method", Messages.getQuestionIcon(), "POST", new NonEmptyInputValidator());
-            if (methodString == null) {
+                "Request Method", Messages.getQuestionIcon(), "POST", new NonEmptyInputValidator());
+            if(methodString == null) {
                 return;
             }
             HTTPMethod method = HTTPMethod.valueOf(methodString.toUpperCase());
 
             String uri = ELASTICSEARCH_CONNECTOR.getConnectionUrl() + path;
             Messages.showMessageDialog(project, "Evaluate " + (StringUtils.isNotBlank(text) ? text + " " : "")
-                    + "on " + uri, "Information", Messages.getInformationIcon());
+                + "on " + uri, "Information", Messages.getInformationIcon());
             Request request = getRequest(method, uri);
-            if (StringUtils.isNotBlank(text)) {
+            if(StringUtils.isNotBlank(text)) {
                 request.bodyString(text, ContentType.APPLICATION_JSON);
             }
             Content content = request.execute().returnContent();
             String response = content == null ? "No content were returned." : content.asString();
 
             VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
-                    ELASTICSEARCH_QUERY_RESPONSE_JSON, ScratchFileService.Option.create_if_missing);
+                ELASTICSEARCH_QUERY_RESPONSE_JSON, ScratchFileService.Option.create_if_missing);
 
             Document responseDocument = FileDocumentManager.getInstance().getDocument(file);
             ApplicationManager.getApplication().runWriteAction(() -> responseDocument.setText(response));
 
             FileEditorManager.getInstance(project).openFile(file, false);
 
-            ReformatCodeProcessor reformatCodeProcessor = new ReformatCodeProcessor(Objects.requireNonNull(PsiManager.getInstance(project).findFile(file)), false);
+            ReformatCodeProcessor reformatCodeProcessor = new ReformatCodeProcessor(
+                Objects.requireNonNull(PsiManager.getInstance(project).findFile(file)), false);
             reformatCodeProcessor.run();
-        } catch (Throwable ex) {
+        } catch(Throwable ex) {
             Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
         }
     }
 
     private Request getRequest(HTTPMethod method, String uri) {
-        switch (method) {
+        switch(method) {
             case PUT: {
                 return Request.Put(uri);
             }

@@ -20,6 +20,18 @@ public class Connection {
         }
     }
 
+    public String getHost() {
+        return host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
     public boolean isInitialized() {
         return initialized;
     }

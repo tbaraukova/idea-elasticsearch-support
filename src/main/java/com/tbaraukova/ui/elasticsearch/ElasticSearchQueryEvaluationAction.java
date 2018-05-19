@@ -20,7 +20,7 @@ public class ElasticSearchQueryEvaluationAction extends ElasticSearchSimpleQuery
     @Override
     protected boolean isVisible(Project project, Editor editor, VirtualFile virtualFile) {
         return super.isVisible(project, editor, virtualFile) && project != null && editor != null &&
-                editor.getSelectionModel().hasSelection();
+            editor.getSelectionModel().hasSelection();
     }
 
     private String getQueryToEvaluate(AnActionEvent event) {

@@ -17,6 +17,18 @@ public enum ElasticsearchConnector {
         return connectionUrl.get().isInitialized();
     }
 
+    public String host() {
+        return connectionUrl.get().getHost();
+    }
+
+    public String port() {
+        return connectionUrl.get().getPort() + "";
+    }
+
+    public String protocol() {
+        return connectionUrl.get().getProtocol();
+    }
+
     public ElasticsearchConnector host(String url) {
         connectionUrl.getAndUpdate(connection -> {
             connection.setHost(url);
@@ -35,7 +47,7 @@ public enum ElasticsearchConnector {
 
     public ElasticsearchConnector protocol(String url) {
         connectionUrl.getAndUpdate(connection -> {
-            if (StringUtils.isNotEmpty(url)) {
+            if(StringUtils.isNotEmpty(url)) {
                 connection.setProtocol(url);
             }
             return connection;
