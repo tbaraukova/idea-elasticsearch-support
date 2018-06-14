@@ -3,7 +3,7 @@
     <name>Elasticsearch database UI plugin</name>
     <version>1.0.1</version>
     <vendor email="borovkova.t.v@gmail.com">Tatsiana Baraukova</vendor>
-
+    <idea-version since-build="179"/>
     <description><![CDATA[
       A tool to connect to the ElasticSearch instance and perform a set of basic operations.
     ]]></description>
