@@ -16,6 +16,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <projectService serviceImplementation="com.tbaraukova.ui.elasticsearch.ConnectionHolder" />
     </extensions>
 
     <actions>

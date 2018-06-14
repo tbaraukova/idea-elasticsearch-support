@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -18,6 +19,7 @@ import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.net.HTTPMethod;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
@@ -27,7 +29,6 @@ import java.util.Objects;
 
 public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
 
-    private static final ElasticsearchConnector ELASTICSEARCH_CONNECTOR = ElasticsearchConnector.INSTANCE;
     private static final String ELASTICSEARCH_QUERY_RESPONSE_JSON = "elasticsearch-response.json";
 
     @Override
@@ -37,7 +38,8 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
     }
 
     protected boolean isVisible(Project project, Editor editor, VirtualFile virtualFile) {
-        return ELASTICSEARCH_CONNECTOR.isInitialized();
+        List<Connection> state = ServiceManager.getService(project, ConnectionHolder.class).getState();
+        return state != null && !state.isEmpty() && state.get(state.size() - 1).isInitialized();
     }
 
     @Override
@@ -47,6 +49,7 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
 
     protected void performActionInternal(AnActionEvent event, String text) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
+        List<Connection> state = ServiceManager.getService(project, ConnectionHolder.class).getState();
         try {
             String path = Messages.showInputDialog(project, "Enter request path", "Request Path",
                 Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
@@ -60,7 +63,7 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
             }
             HTTPMethod method = HTTPMethod.valueOf(methodString.toUpperCase());
 
-            String uri = ELASTICSEARCH_CONNECTOR.getConnectionUrl() + path;
+            String uri = state.get(state.size() - 1).getUrl() + path;
             Messages.showMessageDialog(project, "Evaluate " + (StringUtils.isNotBlank(text) ? text + " " : "")
                 + "on " + uri, "Information", Messages.getInformationIcon());
             Request request = getRequest(method, uri);
