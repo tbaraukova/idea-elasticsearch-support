@@ -13,8 +13,9 @@ import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.fluent.Content;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 
 public class ElasticsearchConnectorAction extends AnAction {
@@ -61,11 +62,17 @@ public class ElasticsearchConnectorAction extends AnAction {
             }
 
             Connection currentConnection = new Connection(host, Integer.valueOf(port), protocol);
+            HttpResponse httpResponse = Request.Get(currentConnection.getUrl()).execute().returnResponse();
+            if(httpResponse.getStatusLine().getStatusCode() != 200) {
+                Messages.showMessageDialog(project, httpResponse.getStatusLine().getReasonPhrase(), "Connection Error!",
+                    Messages.getErrorIcon());
+                return;
+            }
             state.remove(currentConnection);
             state.add(currentConnection);
             currentConnection.setInitialized(true);
-            Content content = Request.Get(currentConnection.getUrl()).execute().returnContent();
-            Messages.showMessageDialog(project, content.asString(), "Information", Messages.getInformationIcon());
+            Messages.showMessageDialog(project, IOUtils.toString(httpResponse.getEntity().getContent()), "Information",
+                Messages.getInformationIcon());
             VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
                 ELASTICSEARCH_QUERY_JSON, ScratchFileService.Option.create_if_missing);
             FileEditorManager.getInstance(project).openFile(file, true);
