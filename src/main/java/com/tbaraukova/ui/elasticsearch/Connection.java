@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class Connection implements Serializable {
     private String host = "localhost";
     private int port = 9200;
-    private String protocol = "http";
+    private String protocol = Protocol.HTTP.toString();
     private boolean initialized = false;
 
     public Connection() {
@@ -26,7 +26,7 @@ public class Connection implements Serializable {
     }
 
     public void setProtocol(String protocol) {
-        if (protocol != null) {
+        if(protocol != null) {
             this.protocol = protocol;
         }
     }

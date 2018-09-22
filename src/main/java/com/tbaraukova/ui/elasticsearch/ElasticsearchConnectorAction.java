@@ -8,31 +8,17 @@ import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.InputValidator;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 
 public class ElasticsearchConnectorAction extends AnAction {
 
     public static final String ELASTICSEARCH_QUERY_JSON = "elasticsearch-query.json";
-    public static final InputValidator PROTOCOL_VALIDATOR = new InputValidator() {
-        @Override
-        public boolean checkInput(String inputString) {
-            return StringUtils.isEmpty(inputString) || "http".equals(inputString) || "https".equals(
-                inputString);
-        }
-
-        @Override
-        public boolean canClose(String inputString) {
-            return checkInput(inputString);
-        }
-    };
 
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
@@ -54,14 +40,16 @@ public class ElasticsearchConnectorAction extends AnAction {
             if(port == null) {
                 return;
             }
-            String protocol = Messages.showInputDialog(project,
+            int protocol = Messages.showChooseDialog(project,
                 "What is database protocol name (leave empty for \"http\" by default)?", "Input Protocol",
-                Messages.getQuestionIcon(), latestConnection.getProtocol(), PROTOCOL_VALIDATOR);
-            if(protocol == null) {
+                Messages.getQuestionIcon(),
+                Protocol.names(), Protocol.HTTP.toString());
+            if(protocol == -1) {
                 return;
             }
 
-            Connection currentConnection = new Connection(host, Integer.valueOf(port), protocol);
+            Connection currentConnection = new Connection(host, Integer.valueOf(port),
+                Protocol.byOrdinal(protocol).toString());
             HttpResponse httpResponse = Request.Get(currentConnection.getUrl()).execute().returnResponse();
             if(httpResponse.getStatusLine().getStatusCode() != 200) {
                 Messages.showMessageDialog(project, httpResponse.getStatusLine().getReasonPhrase(), "Connection Error!",
