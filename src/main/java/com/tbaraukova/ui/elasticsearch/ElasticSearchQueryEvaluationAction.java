@@ -13,8 +13,7 @@ public class ElasticSearchQueryEvaluationAction extends ElasticSearchSimpleQuery
 
     @Override
     public void actionPerformed(AnActionEvent event) {
-        String text = getQueryToEvaluate(event);
-        performActionInternal(event, text);
+        performActionInternal(event, getQueryToEvaluate(event));
     }
 
     @Override
