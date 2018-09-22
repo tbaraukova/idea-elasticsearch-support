@@ -19,7 +19,9 @@ import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.net.HTTPMethod;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
@@ -56,12 +58,17 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
             if(path == null) {
                 return;
             }
-            String methodString = Messages.showInputDialog(project, "Enter request method",
-                "Request Method", Messages.getQuestionIcon(), "POST", new NonEmptyInputValidator());
-            if(methodString == null) {
+            int methodOrdinal = Messages.showChooseDialog(project, "Enter request method",
+                "Request Method", Messages.getQuestionIcon(),
+                Arrays.stream(HTTPMethod.values()).map(Enum::name).toArray(String[]::new), "POST");
+            if(methodOrdinal == -1) {
                 return;
             }
-            HTTPMethod method = HTTPMethod.valueOf(methodString.toUpperCase());
+
+            Optional<HTTPMethod> first = Arrays.stream(HTTPMethod.values())
+                .filter(i -> i.ordinal() == methodOrdinal)
+                .findFirst();
+            HTTPMethod method = first.orElse(HTTPMethod.POST);
 
             String uri = state.get(state.size() - 1).getUrl() + path;
             Messages.showMessageDialog(project, "Evaluate " + (StringUtils.isNotBlank(text) ? text + " " : "")

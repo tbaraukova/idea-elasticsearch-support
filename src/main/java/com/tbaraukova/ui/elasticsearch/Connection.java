@@ -1,6 +1,8 @@
 package com.tbaraukova.ui.elasticsearch;
 
-public class Connection {
+import java.io.Serializable;
+
+public class Connection implements Serializable {
     private String host = "localhost";
     private int port = 9200;
     private String protocol = "http";

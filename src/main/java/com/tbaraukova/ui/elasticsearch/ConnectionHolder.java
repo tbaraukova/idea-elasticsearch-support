@@ -8,10 +8,10 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-@State(name = "ElasticsearchConnectionSettings", storages = @Storage("elasticsearch-connections.xml"))
+@State(name = "ElasticsearchConnectionSettings", storages = @Storage("/elasticsearch-connections.xml"))
 public class ConnectionHolder implements PersistentStateComponent<List<Connection>> {
 
-    private List<Connection> connections;
+    public List<Connection> connections;
 
     @Nullable
     @Override
