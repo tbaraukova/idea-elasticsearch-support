@@ -11,6 +11,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.tbaraukova.ui.elasticsearch.connections.Connection;
+import com.tbaraukova.ui.elasticsearch.connections.ConnectionHolder;
+import com.tbaraukova.ui.elasticsearch.connections.Connections;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
@@ -22,14 +25,15 @@ public class ElasticsearchConnectorAction extends AnAction {
 
     public void actionPerformed(AnActionEvent event) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        ConnectionHolder connectionHolder = ServiceManager.getService(project, ConnectionHolder.class);
+        ConnectionHolder connectionHolder = ServiceManager.getService(ConnectionHolder.class);
         try {
-            List<Connection> state = connectionHolder.getState();
+            Connections state = connectionHolder.getState();
             if(state == null) {
                 connectionHolder.noStateLoaded();
                 state = connectionHolder.getState();
             }
-            Connection latestConnection = state.get(state.size() - 1);
+            List<Connection> connections = state.getConnections();
+            Connection latestConnection = connections.get(connections.size() - 1);
             String host = Messages.showInputDialog(project, "What is database host name?", "Input Host Name",
                 Messages.getQuestionIcon(), latestConnection.getHost(), new NonEmptyInputValidator());
             if(host == null) {
@@ -56,8 +60,8 @@ public class ElasticsearchConnectorAction extends AnAction {
                     Messages.getErrorIcon());
                 return;
             }
-            state.remove(currentConnection);
-            state.add(currentConnection);
+            state.getConnections().remove(currentConnection);
+            state.getConnections().add(currentConnection);
             currentConnection.setInitialized(true);
             Messages.showMessageDialog(project, IOUtils.toString(httpResponse.getEntity().getContent()), "Information",
                 Messages.getInformationIcon());

@@ -1,11 +1,17 @@
-package com.tbaraukova.ui.elasticsearch;
+package com.tbaraukova.ui.elasticsearch.connections;
 
+import com.intellij.util.xmlb.annotations.Property;
+import com.tbaraukova.ui.elasticsearch.Protocol;
 import java.io.Serializable;
 
 public class Connection implements Serializable {
+    @Property
     private String host = "localhost";
+    @Property
     private int port = 9200;
+    @Property
     private String protocol = Protocol.HTTP.toString();
+    @Property
     private boolean initialized = false;
 
     public Connection() {

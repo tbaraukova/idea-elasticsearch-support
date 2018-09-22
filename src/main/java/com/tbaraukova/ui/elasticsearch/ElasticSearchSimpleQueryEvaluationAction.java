@@ -19,6 +19,9 @@ import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.util.net.HTTPMethod;
+import com.tbaraukova.ui.elasticsearch.connections.Connection;
+import com.tbaraukova.ui.elasticsearch.connections.ConnectionHolder;
+import com.tbaraukova.ui.elasticsearch.connections.Connections;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +43,11 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
     }
 
     protected boolean isVisible(Project project, Editor editor, VirtualFile virtualFile) {
-        List<Connection> state = ServiceManager.getService(project, ConnectionHolder.class).getState();
+        Connections connections = ServiceManager.getService(ConnectionHolder.class).getState();
+        if(connections == null) {
+            return false;
+        }
+        List<Connection> state = connections.getConnections();
         return state != null && !state.isEmpty() && state.get(state.size() - 1).isInitialized();
     }
 
@@ -51,7 +58,7 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
 
     protected void performActionInternal(AnActionEvent event, String text) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        List<Connection> state = ServiceManager.getService(project, ConnectionHolder.class).getState();
+        List<Connection> state = ServiceManager.getService(ConnectionHolder.class).getState().getConnections();
         try {
             String path = Messages.showInputDialog(project, "Enter request path", "Request Path",
                 Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
