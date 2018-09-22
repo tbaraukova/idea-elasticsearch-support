@@ -34,20 +34,21 @@ public class ElasticsearchConnectorAction extends AnAction {
             }
             List<Connection> connections = state.getConnections();
             Connection latestConnection = connections.get(connections.size() - 1);
-            String host = Messages.showInputDialog(project, "What is database host name?", "Input Host Name",
-                Messages.getQuestionIcon(), latestConnection.getHost(), new NonEmptyInputValidator());
+            String host = Messages.showEditableChooseDialog("What is database host name?", "Input Host Name",
+                Messages.getQuestionIcon(), connections.stream().map(Connection::getHost).distinct().toArray(String[]::new),
+                latestConnection.getHost(), new NonEmptyInputValidator());
             if(host == null) {
                 return;
             }
-            String port = Messages.showInputDialog(project, "What is database port name?", "Input Port Name",
-                Messages.getQuestionIcon(), latestConnection.getPort() + "", new NonEmptyInputValidator());
+            String port = Messages.showEditableChooseDialog("What is database port name?", "Input Port Name",
+                Messages.getQuestionIcon(), connections.stream().map(i -> i.getPort() + "").distinct().toArray(String[]::new),
+                latestConnection.getPort() + "", new NonEmptyInputValidator());
             if(port == null) {
                 return;
             }
             int protocol = Messages.showChooseDialog(project,
                 "What is database protocol name (leave empty for \"http\" by default)?", "Input Protocol",
-                Messages.getQuestionIcon(),
-                Protocol.names(), Protocol.HTTP.toString());
+                Messages.getQuestionIcon(), Protocol.names(), latestConnection.getProtocol());
             if(protocol == -1) {
                 return;
             }
