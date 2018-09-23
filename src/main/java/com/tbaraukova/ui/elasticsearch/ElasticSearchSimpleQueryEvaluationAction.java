@@ -14,14 +14,13 @@ import com.intellij.util.net.HTTPMethod;
 import com.tbaraukova.ui.elasticsearch.connections.Connection;
 import com.tbaraukova.ui.elasticsearch.connections.ConnectionHolder;
 import com.tbaraukova.ui.elasticsearch.connections.Connections;
-import java.io.IOException;
+import com.tbaraukova.ui.elasticsearch.queries.Queries;
+import com.tbaraukova.ui.elasticsearch.queries.Query;
+import com.tbaraukova.ui.elasticsearch.queries.QueryHolder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.fluent.Content;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.entity.ContentType;
 import org.jetbrains.annotations.Nullable;
 
 public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
@@ -49,9 +48,15 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
     protected void performActionInternal(AnActionEvent event, String text) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
         List<Connection> state = ServiceManager.getService(ConnectionHolder.class).getState().getConnections();
+        Queries queries = ServiceManager.getService(QueryHolder.class).getState();
+        List<Query> queryList = queries.getQueries();
         try {
-            String path = Messages.showInputDialog(project, "Enter request path", "Request Path",
-                Messages.getQuestionIcon(), "/_search", new NonEmptyInputValidator());
+
+            String path = Messages.showEditableChooseDialog("Enter request path", "Request Path",
+                Messages.getQuestionIcon(),
+                queryList.stream().map(Query::getPath).distinct().toArray(String[]::new),
+                queryList.get(queryList.size() - 1).getPath(), new NonEmptyInputValidator());
+
             if(path == null) {
                 return;
             }
@@ -59,6 +64,10 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
             if(method == null) {
                 return;
             }
+
+            Query query = new Query(path, method.name());
+            queryList.remove(query);
+            queryList.add(query);
 
             Content content = new ElasticsearchRequestSender(text, state.get(state.size() - 1).getUrl(), path,
                 method).getContent();

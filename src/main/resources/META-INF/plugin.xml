@@ -17,6 +17,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <applicationService serviceImplementation="com.tbaraukova.ui.elasticsearch.connections.ConnectionHolder" />
+        <applicationService serviceImplementation="com.tbaraukova.ui.elasticsearch.queries.QueryHolder" />
     </extensions>
 
     <actions>
