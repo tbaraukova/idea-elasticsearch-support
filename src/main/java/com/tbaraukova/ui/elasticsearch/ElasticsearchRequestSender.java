@@ -3,8 +3,9 @@ package com.tbaraukova.ui.elasticsearch;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.util.net.HTTPMethod;
 import java.io.IOException;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.fluent.Content;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.entity.ContentType;
 
@@ -21,7 +22,7 @@ public class ElasticsearchRequestSender {
         this.method = method;
     }
 
-    public Content getContent()
+    public String getContent()
         throws IOException {
         String uri = url + path;
         Messages.showMessageDialog("Evaluate " + (StringUtils.isNotBlank(text) ? text + " " : "")
@@ -30,7 +31,10 @@ public class ElasticsearchRequestSender {
         if(StringUtils.isNotBlank(text)) {
             request.bodyString(text, ContentType.APPLICATION_JSON);
         }
-        return request.execute().returnContent();
+        HttpResponse httpResponse = request.execute().returnResponse();
+        Messages.showMessageDialog(httpResponse.getStatusLine().toString(), "Information",
+            Messages.getInformationIcon());
+        return IOUtils.toString(httpResponse.getEntity().getContent());
     }
 
 

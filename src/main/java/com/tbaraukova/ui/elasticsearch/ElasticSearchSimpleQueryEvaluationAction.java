@@ -20,7 +20,6 @@ import com.tbaraukova.ui.elasticsearch.queries.QueryHolder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.apache.http.client.fluent.Content;
 import org.jetbrains.annotations.Nullable;
 
 public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
@@ -69,11 +68,11 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
             queryList.remove(query);
             queryList.add(query);
 
-            Content content = new ElasticsearchRequestSender(text, state.get(state.size() - 1).getUrl(), path,
+            String content = new ElasticsearchRequestSender(text, state.get(state.size() - 1).getUrl(), path,
                 method).getContent();
 
             ElasticsearchResponseRenderer.instance(project,
-                content == null ? "No content were returned." : content.asString()).displayResponse();
+                content == null ? "No content were returned." : content).displayResponse();
         } catch(Throwable ex) {
             Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
         }
