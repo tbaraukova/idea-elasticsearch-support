@@ -9,15 +9,12 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.NonEmptyInputValidator;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.tbaraukova.ui.elasticsearch.connections.Connection;
 import com.tbaraukova.ui.elasticsearch.connections.ConnectionHolder;
+import com.tbaraukova.ui.elasticsearch.connections.ConnectionProvider;
 import com.tbaraukova.ui.elasticsearch.connections.Connections;
-import java.util.List;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.fluent.Request;
+import java.io.IOException;
 
 public class ElasticsearchConnectorAction extends AnAction {
 
@@ -32,45 +29,21 @@ public class ElasticsearchConnectorAction extends AnAction {
                 connectionHolder.noStateLoaded();
                 state = connectionHolder.getState();
             }
-            List<Connection> connections = state.getConnections();
-            Connection latestConnection = connections.get(connections.size() - 1);
-            String host = Messages.showEditableChooseDialog("What is database host name?", "Input Host Name",
-                Messages.getQuestionIcon(), connections.stream().map(Connection::getHost).distinct().toArray(String[]::new),
-                latestConnection.getHost(), new NonEmptyInputValidator());
-            if(host == null) {
+            Connection currentConnection = new ConnectionProvider(project, state).getConnection();
+            if(currentConnection == null) {
                 return;
             }
-            String port = Messages.showEditableChooseDialog("What is database port name?", "Input Port Name",
-                Messages.getQuestionIcon(), connections.stream().map(i -> i.getPort() + "").distinct().toArray(String[]::new),
-                latestConnection.getPort() + "", new NonEmptyInputValidator());
-            if(port == null) {
-                return;
-            }
-            int protocol = Messages.showChooseDialog(project,
-                "What is database protocol name (leave empty for \"http\" by default)?", "Input Protocol",
-                Messages.getQuestionIcon(), Protocol.names(), latestConnection.getProtocol());
-            if(protocol == -1) {
-                return;
-            }
-
-            Connection currentConnection = new Connection(host, Integer.valueOf(port),
-                Protocol.byOrdinal(protocol).toString());
-            HttpResponse httpResponse = Request.Get(currentConnection.getUrl()).execute().returnResponse();
-            if(httpResponse.getStatusLine().getStatusCode() != 200) {
-                Messages.showMessageDialog(project, httpResponse.getStatusLine().getReasonPhrase(), "Connection Error!",
-                    Messages.getErrorIcon());
-                return;
-            }
-            state.getConnections().remove(currentConnection);
-            state.getConnections().add(currentConnection);
             currentConnection.setInitialized(true);
-            Messages.showMessageDialog(project, IOUtils.toString(httpResponse.getEntity().getContent()), "Information",
-                Messages.getInformationIcon());
-            VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
-                ELASTICSEARCH_QUERY_JSON, ScratchFileService.Option.create_if_missing);
-            FileEditorManager.getInstance(project).openFile(file, true);
+            openQueryFile(project);
         } catch(Exception ex) {
             Messages.showMessageDialog(project, ex.getMessage(), "Error", Messages.getErrorIcon());
         }
     }
+
+    private void openQueryFile(Project project) throws IOException {
+        VirtualFile file = ScratchFileService.getInstance().findFile(ScratchRootType.getInstance(),
+            ELASTICSEARCH_QUERY_JSON, ScratchFileService.Option.create_if_missing);
+        FileEditorManager.getInstance(project).openFile(file, true);
+    }
+
 }

@@ -46,15 +46,14 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
 
     protected void performActionInternal(AnActionEvent event, String text) {
         Project project = event.getData(PlatformDataKeys.PROJECT);
-        List<Connection> state = ServiceManager.getService(ConnectionHolder.class).getState().getConnections();
+        Connections state = ServiceManager.getService(ConnectionHolder.class).getState();
         Queries queries = ServiceManager.getService(QueryHolder.class).getState();
-        List<Query> queryList = queries.getQueries();
         try {
 
             String path = Messages.showEditableChooseDialog("Enter request path", "Request Path",
                 Messages.getQuestionIcon(),
-                queryList.stream().map(Query::getPath).distinct().toArray(String[]::new),
-                queryList.get(queryList.size() - 1).getPath(), new NonEmptyInputValidator());
+                queries.stream().map(Query::getPath).distinct().toArray(String[]::new),
+                queries.getLatest().getPath(), new NonEmptyInputValidator());
 
             if(path == null) {
                 return;
@@ -64,11 +63,9 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
                 return;
             }
 
-            Query query = new Query(path, method.name());
-            queryList.remove(query);
-            queryList.add(query);
+            queries.moveToEnd(new Query(path, method.name()));
 
-            String content = new ElasticsearchRequestSender(text, state.get(state.size() - 1).getUrl(), path,
+            String content = new ElasticsearchRequestSender(text, state.getLatest().getUrl(), path,
                 method).getContent();
 
             ElasticsearchResponseRenderer.instance(project,
@@ -90,8 +87,7 @@ public class ElasticSearchSimpleQueryEvaluationAction extends AnAction {
         Optional<HTTPMethod> first = Arrays.stream(HTTPMethod.values())
             .filter(i -> i.ordinal() == methodOrdinal)
             .findFirst();
-        HTTPMethod method = first.orElse(HTTPMethod.POST);
-        return method;
+        return first.orElse(HTTPMethod.POST);
     }
 
 }
